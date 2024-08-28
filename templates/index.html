@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tata Assistant</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #main-container {
+            width: 600px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        #header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+        #header img {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        #chat-container {
+            width: 100%;
+            height: 400px;
+            border-bottom: 1px solid #ccc;
+            overflow-y: scroll;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .message {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .message img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .message p {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 0;
+        }
+        .message.user p {
+            background-color: #007bff;
+            color: #fff;
+        }
+        #input-container {
+            display: flex;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+        #send-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        #send-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="main-container">
+        <div id="header">
+            <h1>Car Sense Virtual Guru</h1>
+        </div>
+        <div id="chat-container"></div>
+        <div id="input-container">
+            <input type="text" id="user-input" placeholder="Ask me anything about the artifacts">
+            <button id="send-button" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        let chatHistory = [];
+
+        function sendMessage() {
+            const userInput = $('#user-input').val();
+            if (userInput.trim() === '') return;
+
+            appendMessage('You', userInput, "{{url_for('static',filename='man.png')}}");
+            $('#user-input').val('');
+
+            $.ajax({
+                url: '/ask',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ message: userInput, chat_history: chatHistory }),
+                success: function(response) {
+                    appendMessage('AR-tifact', response.answer, "{{url_for('static',filename='logo-Meta.png')}}");
+                    chatHistory = response.chat_history;
+                }
+            });
+        }
+
+        function appendMessage(sender, message, imagePath) {
+            $('#chat-container').append(`
+                <div class="message ${sender === 'You' ? 'user' : 'bot'}">
+                    <img src="${imagePath}" alt="${sender}">
+                    <p><strong>${sender}:</strong> ${message}</p>
+                </div>
+            `);
+            $('#chat-container').scrollTop($('#chat-container')[0].scrollHeight);
+        }
+
+        $('#user-input').keypress(function(e) {
+            if (e.which == 13) {
+                sendMessage();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

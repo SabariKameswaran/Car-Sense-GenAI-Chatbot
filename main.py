@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 PERSIST = True
 vectorstore = None
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "YOUR_API_KEY"
 
 def initialize_vectorstore():
     global vectorstore
